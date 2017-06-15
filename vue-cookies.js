@@ -1,5 +1,5 @@
 /**
- * Vue Cookies v1.5.3
+ * Vue Cookies v1.6.0
  * https://github.com/cmp-cc/vue-cookies
  *
  * Copyright 2016, cmp-cc
@@ -7,11 +7,34 @@
  */
 
 (function() {
+
+  
+  var configOption = {
+    expires : "; max-age=86400",
+    path:null,
+    domain:null,
+    secure:null,
+    debug:false,
+    callback:true,
+    after: function(){
+
+    },
+    before: function(){
+
+    }
+  };
+
   var VueCookies = {
     // install of Vue
     install: function(Vue) {
       Vue.prototype.$cookies = this
       Vue.cookies = this
+    },
+    config:function(option){
+      configOption = Object.assign(configOption,option);
+      if(typeof configOption.after !== "function" || typeof configOption.before !== "function"){
+          new new TypeError("checked option.after and option.before type of function");
+      }
     },
     get: function(key) {
       return decodeURIComponent(document.cookie.replace(new RegExp("(?:(?:^|.*;)\\s*" + encodeURIComponent(key).replace(/[\-\.\+\*]/g, "\\$&") + "\\s*\\=\\s*([^;]*).*$)|^.*$"), "$1")) || null;
@@ -26,7 +49,7 @@
       if (expireTimes) {
         switch (expireTimes.constructor) {
           case Number:
-            if(expireTimes === Infinity || expireTimes === -1) _expires = "; expires=Fri, 31 Dec 9999 23:59:59 GMT"
+            if(expireTimes === Infinity || expireTimes === -1) _expires = "; expires=Fri, 31 Dec 9999 23:59:59 GMT";
             else _expires = "; max-age=" + expireTimes;
             break;
           case String:
@@ -58,10 +81,11 @@
     },
     remove: function(key, path, domain) {
       if (!key || !this.isKey(key)) {
-        return false;
+
+        return this;
       }
       document.cookie = encodeURIComponent(key) + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT" + (domain ? "; domain=" + domain : "") + (path ? "; path=" + path : "");
-      return true;
+      return this;
     },
     isKey: function(key) {
       return (new RegExp("(?:^|;\\s*)" + encodeURIComponent(key).replace(/[\-\.\+\*]/g, "\\$&") + "\\s*\\=")).test(document.cookie);
